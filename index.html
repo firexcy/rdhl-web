@@ -10,12 +10,17 @@
             background-color: var(--bg-color);
             width: 100%;
             max-width: 600px;
+            margin: 1em;
         }
 
         h1 {
             font-size: 1.5em;
             font-weight: bold;
             color: #5e81ac;
+        }
+
+        form * {
+            margin: 1em 0;
         }
 
         label {
@@ -44,12 +49,12 @@
     <form>
 
         <label for="url">URL</label><br>
-        <input type="text" id="url" name="url"><br>
+        <input type="url" id="url" name="url" size=40><br>
         <label for="text">Text</label><br>
         <textarea id="text" name="text" cols=40 rows=12 required></textarea><br>
 
         <label for="apiKey">API Key</label><br>
-        <input type="password" id="apiKey" name="apiKey"><br>
+        <input type="password" id="apiKey" name="apiKey" size=40><br>
 
         <input type="button" value="Submit" onclick="submitForm()">
     </form>
