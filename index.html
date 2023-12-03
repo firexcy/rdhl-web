@@ -62,21 +62,22 @@
 
     <script>
         document.getElementById('apiKey').value = localStorage.getItem('rd_apiKey') || '';
+        let headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + document.getElementById('apiKey').value
+        };
         function submitForm() {
             document.getElementById('response').innerText = '';
             localStorage.setItem('rd_apiKey', document.getElementById('apiKey').value);
             fetch(`https://api.raindrop.io/rest/v1/raindrops/0?search=${encodeURIComponent(document.getElementById('url').value)}`, {
                 method: 'GET',
-                headers: { 'Authorization': 'Bearer ' + document.getElementById('apiKey').value }
+                headers: headers
             }).then(response => response.json()).then(data => {
                 if (data.items && data.items[0] && data.items[0]._id) {
                     let payload = { 'highlights': [{ 'text': document.getElementById('text').value }] };
                     fetch('https://api.raindrop.io/rest/v1/raindrop/' + data.items[0]._id, {
                         method: 'PUT',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + document.getElementById('apiKey').value
-                        },
+                        headers: headers,
                         body: JSON.stringify(payload)
                     }).then(response => response.text()).then(data => {
                         document.getElementById('response').innerText = 'OK';
@@ -93,10 +94,7 @@
                     };
                     fetch('https://api.raindrop.io/rest/v1/raindrop', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': 'Bearer ' + document.getElementById('apiKey').value
-                        },
+                        headers: headers,
                         body: JSON.stringify(payload)
                     }).then(response => response.text()).then(data => {
                         document.getElementById('response').innerText = 'OK';
