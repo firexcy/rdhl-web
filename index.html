@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Hypothesis Highlighter</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            color: var(--text-color);
+            background-color: var(--bg-color);
+            width: 100%;
+            max-width: 600px;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #5e81ac;
+        }
+
+        label {
+            color: #5e81ac;
+            font-weight: bold;
+        }
+
+        #url,
+        #apiKey,
+        #groupID,
+        #response {
+            font-family: monospace;
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --text-color: #eceff4;
+                --bg-color: #2e3440;
+            }
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --text-color: #2e3440;
+                --bg-color: #eceff4;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Raindrop Highlighter</h1>
+    <form>
+
+        <label for="url">URL</label><br>
+        <input type="text" id="url" name="url"><br>
+        <label for="text">Text</label><br>
+        <textarea id="text" name="text" cols=40 rows=12 required></textarea><br>
+
+        <label for="apiKey">API Key</label><br>
+        <input type="password" id="apiKey" name="apiKey"><br>
+
+        <input type="button" value="Submit" onclick="submitForm()">
+    </form>
+    <pre id="response"></pre>
+
+    <script>
+        document.getElementById('apiKey').value = localStorage.getItem('rd_apiKey') || '';
+        function submitForm() {
+            document.getElementById('response').innerText = '';
+            localStorage.setItem('rd_apiKey', document.getElementById('apiKey').value);
+            fetch(`https://api.raindrop.io/rest/v1/raindrops/0?search=${encodeURIComponent(document.getElementById('url').value)}`, {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + document.getElementById('apiKey').value }
+            }).then(response => response.json()).then(data => {
+                if (data.items && data.items[0] && data.items[0]._id) {
+                    let payload = { 'highlights': [{ 'text': document.getElementById('text').value }] };
+                    console.log(payload);
+                    fetch('https://api.raindrop.io/rest/v1/raindrop/' + data.items[0]._id, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + document.getElementById('apiKey').value
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(response => response.text()).then(data => {
+                        document.getElementById('response').innerText = 'OK';
+                        document.getElementById('text').value = '';
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('response').innerText = 'Error: ' + error;
+                    });
+                } else {
+                    let payload = {
+                        'link': document.getElementById('url').value,
+                        'pleaseParse': {},
+                        'highlights': [{ 'text': document.getElementById('text').value }]
+                    };
+                    console.log(payload);
+                    fetch('https://api.raindrop.io/rest/v1/raindrop', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + document.getElementById('apiKey').value
+                        },
+                        body: JSON.stringify(payload)
+                    }).then(response => response.text()).then(data => {
+                        document.getElementById('response').innerText = 'OK';
+                        document.getElementById('text').value = '';
+                    }).catch(error => {
+                        console.error('Error:', error);
+                        document.getElementById('response').innerText = 'Error: ' + error;
+                    });
+                }
+            }).catch(error => {
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+
+</html>
