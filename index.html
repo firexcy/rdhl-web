@@ -71,7 +71,6 @@
             }).then(response => response.json()).then(data => {
                 if (data.items && data.items[0] && data.items[0]._id) {
                     let payload = { 'highlights': [{ 'text': document.getElementById('text').value }] };
-                    console.log(payload);
                     fetch('https://api.raindrop.io/rest/v1/raindrop/' + data.items[0]._id, {
                         method: 'PUT',
                         headers: {
@@ -92,7 +91,6 @@
                         'pleaseParse': {},
                         'highlights': [{ 'text': document.getElementById('text').value }]
                     };
-                    console.log(payload);
                     fetch('https://api.raindrop.io/rest/v1/raindrop', {
                         method: 'POST',
                         headers: {
